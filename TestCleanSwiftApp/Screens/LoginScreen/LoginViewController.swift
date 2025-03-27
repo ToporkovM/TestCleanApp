@@ -7,8 +7,16 @@
 
 import UIKit
 
+protocol LoginViewControllerInput: AnyObject {
+  func showLogingSuccess(fullUserName: String)
+  func showLogingFailure(message: String)
+}
+
+protocol LoginViewControllerOutput: AnyObject {
+  func tryToLogIn()
+}
+
 class LoginViewController: UIViewController {
-    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
@@ -43,16 +51,40 @@ class LoginViewController: UIViewController {
         return button
     }()
     
+    var interactor: LoginInteractorInput?
+    var router: LoginRoutingProtocol?
+    
     private let constants = Constants()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+    }
+    
+    private func setupUI() {
         view.backgroundColor = .white
+        view.addSubview(enterButton)
+        enterButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        enterButton.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        enterButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
+        enterButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
+        enterButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
     
     @objc private func enterButtonTapped() {
-        
+        interactor?.tryToLogIn()
     }
+}
+
+extension LoginViewController: LoginViewControllerInput {
+  func showLogingSuccess(fullUserName: String) {
+    router?.showLoginSuccess()
+  }
+
+  func showLogingFailure(message: String) {
+    router?.showLogingFailure(message: message)
+  }
 }
 
 private struct Constants {
